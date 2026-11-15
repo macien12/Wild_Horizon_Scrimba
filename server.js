@@ -2,23 +2,21 @@ import http from 'node:http'
 import { getDataFromDB } from './database/db.js'
 import { sendJSONResponse } from './utils/sendJSONResponse.js'
 import { getDataByPathParams } from './utils/getDataByPathParams.js'
+import { getDataByQueryParams } from './utils/getDataByQueryParams.js'
 
 const PORT = 8000
 
 const server = http.createServer(async (req, res) => {
   const destinations = await getDataFromDB()
 
-/*
-Challenge:
-  1. Create a util function to filter data.
-  2. Wire it up and delete unneeded code.
-*/
+  const urlObj = new URL(req.url, `http://${req.headers.host}`)
 
+  const queryObj = Object.fromEntries(urlObj.searchParams)
 
-
-  if (req.url === '/api' && req.method === 'GET') {
-
-    sendJSONResponse(res, 200, destinations)
+  if (urlObj.pathname === '/api' && req.method === 'GET') {
+    
+    let filteredData = getDataByQueryParams(destinations, queryObj)
+    sendJSONResponse(res, 200, filteredData)
 
   } else if (req.url.startsWith('/api/continent') && req.method === 'GET') {
 
