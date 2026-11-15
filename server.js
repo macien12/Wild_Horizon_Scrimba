@@ -1,7 +1,12 @@
-console.log('We have a package.json!!!')
+import http from 'node:http'
 
-/*
-Challenge:
-1. Create a package.json file by typing "npm init" in the terminal.
-2. Answer the questions using the info in project_details.md.
-*/
+const PORT = 8000
+
+
+const server = http.createServer( (req, res)=> {
+  res.write('This is some data \n')
+  res.write('This is some more data \n')
+  res.end()
+})
+
+server.listen(PORT, () => console.log(`Connected on port: ${PORT}`))
