@@ -1,45 +1,47 @@
 import http from 'node:http'
 import { getDataFromDB } from './database/db.js'
+import { sendJSONResponse } from './utils/sendJSONResponse.js'
+import { getDataByPathParams } from './utils/getDataByPathParams.js'
 
 const PORT = 8000
 
 const server = http.createServer(async (req, res) => {
   const destinations = await getDataFromDB()
 
+/*
+Challenge:
+  1. Create a util function to filter data.
+  2. Wire it up and delete unneeded code.
+*/
+
+
+
   if (req.url === '/api' && req.method === 'GET') {
+
+    sendJSONResponse(res, 200, destinations)
+
+  } else if (req.url.startsWith('/api/continent') && req.method === 'GET') {
+
+    const continent = req.url.split('/').pop()
+    const filteredData = getDataByPathParams(destinations, 'continent', continent)
+    sendJSONResponse(res, 200, filteredData)
+
+  } else if (req.url.startsWith('/api/country') && req.method === 'GET') {
+
+    const country = req.url.split('/').pop()
+    const filteredData = getDataByPathParams(destinations, 'country', country)
+    sendJSONResponse(res, 200, filteredData)
+
+  } 
+  
+  else {
+
     res.setHeader('Content-Type', 'application/json')
-    res.statusCode = 200
-    res.end(JSON.stringify(destinations))
-  } else if (req.url.startsWith("/api/continent") ) {
-
-    const continentName = req.url.split("/").pop()
-
-  const filtered = destinations.filter((dest) => {
-    return dest.continent.toLowerCase() === continentName.toLowerCase()
-  })
-
-  res.setHeader('Content-Type', 'application/json')
-  res.statusCode = 200
-  res.end(JSON.stringify(filtered)) 
-
-
-  /*
-  Challenge:
-  1. Check if the url starts with “/api/continent”.
-    (Is there a JS method that allows you to check what a string starts with?)
-
-  2. If it does, serve only items from that continent.
-    (How can you get to what comes after the final slash?)
-    (What method can you use to filter data?)
-  */
-    } else {
-    res.setHeader('Content-Type', 'application/json')
-    res.statusCode = 404
-    res.end(JSON.stringify({
+    sendJSONResponse(res, 404, ({
       error: "not found",
       message: "The requested route does not exist"
-    })
-    )
+    }))   
+
   }
 })
 
